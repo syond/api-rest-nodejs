@@ -10,5 +10,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 //Declarando o controler na parte principal da API e enviando a constante "app" para ser utilizada dentro do controller. 
 require('../src/controllers/authController')(app);
+require('../src/controllers/dashboardController')(app);
 
 app.listen(3000);
