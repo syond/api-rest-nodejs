@@ -3,7 +3,9 @@ const User          = require('../models/User');
 const router        = express.Router(); //Constante para criar Rotas
 const bcrypt        = require('bcryptjs');
 const jwt           = require('jsonwebtoken');
-const authConfig    = require('../config/auth.json'); //Constate que importar as configurações para o token
+const authConfig    = require('../../config/auth.json'); //Constate que importar as configurações para o token
+const crypto        = require('crypto');
+const mailer        = require('../../modules/mailer');
 
 
 //Função para gerar token ao se autenticar
@@ -86,6 +88,51 @@ router.post('/authenticate', async(req, res) => {
         user, 
         token: generateToken({ id: user.id }), 
     });
+});
+
+
+router.post('/forgot_password', async(req, res) => {
+    const { email } = req.body;
+    
+    try {
+        const user = await User.findOne({ email });
+
+        if(!user)
+            return res.status(400).send({ error: "Usuário não encontrado" });
+
+
+        //Gerando token em Hexadecimal
+        const token = crypto.randomBytes(20).toString('hex');
+
+        const now = new Date();
+        //Definindo tempo de experição do Token, no caso a hora atual + 1 = 1 hora a mais
+        now.setHours(now.getHours() + 1);
+
+        await User.findByIdAndUpdate(user.id, {
+            '$set': {
+                passwordResetToken: token,
+                passwordResetExpires: now,
+            }
+        });
+
+        mailer.sendMail({
+            to: email,
+            from: 'apirestnodejs@syond.com',
+            template: 'auth/forgot_password',
+            subject: 'Reset de senha API Rest',
+            context: { token },
+        }, (err) => {
+            if(err)
+                return res.status(400).send({ error: "Não foi possível enviar o email para reset de senha" });
+            
+            return res.send(200);
+        });
+
+    
+    } catch (err) {
+        console.log(err);
+        res.status(400).send({ error: "Error no reset de senha, tente novamente" });
+    }
 });
 
 //Dessa forma conseguimos utilizar o router dentro da API com um prefixo "/auth" no link

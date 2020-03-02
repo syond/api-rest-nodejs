@@ -1,5 +1,5 @@
 //Importando constante do "../database/index.js"
-const mongoose  = require('../database/index');
+const mongoose  = require('../../database/index');
 const bcrypt    = require('bcryptjs');
 
 //Criando schema das tabelas do banco de dados
@@ -17,6 +17,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         require: true,
         select: false,  //Quando executar um select na tabela o campo senha não vai aparecer
+    },
+    passwordResetToken:{
+        type: String,
+        select: false,
+    },
+    passwordResetExpires:{
+        type: Date,
+        select: false,
     },
     created_at:{
         type: Date,
