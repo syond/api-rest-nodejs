@@ -135,5 +135,33 @@ router.post('/forgot_password', async(req, res) => {
     }
 });
 
+
+router.post('/reset_password', async(req,res) => {
+    const { email, token, senha } = req.body;
+
+    try {
+
+        const user = await User.findOne({ email }).
+            select('+passwordResetToken passwordResetExpires');      
+            
+        if(!user)
+            return res.status(400).send({ error: "Usuário não encontrado" });
+
+        if(token !== user.passwordResetToken)
+            return res.status(400).send({ error: 'Token invalido' });
+
+        const now = new Date();
+
+        if(now > user.passwordResetExpires)
+            return res.status(400).send({ error: "Token expirado, gere um novo" });
+
+        user.senha = senha;
+
+    } catch (error) {
+        
+        res.status(400).send({ error: "Não foi possível resetar a senha, tente novamente" });
+    }
+});
+
 //Dessa forma conseguimos utilizar o router dentro da API com um prefixo "/auth" no link
 module.exports = app => app.use('/auth', router);
