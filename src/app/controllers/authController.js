@@ -122,6 +122,7 @@ router.post('/forgot_password', async(req, res) => {
             subject: 'Reset de senha API Rest',
             context: { token },
         }, (err) => {
+            console.log(err);
             if(err)
                 return res.status(400).send({ error: "Não foi possível enviar o email para reset de senha" });
             
@@ -136,13 +137,12 @@ router.post('/forgot_password', async(req, res) => {
 });
 
 
-router.post('/reset_password', async(req,res) => {
+router.post('/reset_password', async(req, res) => {
     const { email, token, senha } = req.body;
 
     try {
 
-        const user = await User.findOne({ email }).
-            select('+passwordResetToken passwordResetExpires');      
+        const user = await User.findOne({ email }).select('+passwordResetToken passwordResetExpires');      
             
         if(!user)
             return res.status(400).send({ error: "Usuário não encontrado" });
@@ -155,10 +155,15 @@ router.post('/reset_password', async(req,res) => {
         if(now > user.passwordResetExpires)
             return res.status(400).send({ error: "Token expirado, gere um novo" });
 
+
         user.senha = senha;
 
-    } catch (error) {
-        
+        await user.save();
+
+        res.send();
+
+    } catch (err) {
+        console.log(err);
         res.status(400).send({ error: "Não foi possível resetar a senha, tente novamente" });
     }
 });

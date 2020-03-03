@@ -13,17 +13,25 @@ const transport = nodemailer.createTransport({
     }
   });
 
-  /**  ESSE CÓDIGO NÃO ESTÁ FUNCIONANDO, PRECISA VERIFICAR
-   * Link para o repositório da lib: https://github.com/yads/nodemailer-express-handlebars/issues/26
-   * 
-   * transport.use('compile', hbs({
-    viewEngine: 'handlebars',
-    viewPath: path.resolve('../src/resources/mail/'), //Caminho onde ficam os templates de email
-    partialsDir: path.resolve(__dirname, "../resources"),
+
+/**
+ * 
+ * Implementado de acordo com a issue do NodeMailer
+ * https://github.com/yads/nodemailer-express-handlebars/issues/22
+ * 
+ */
+const handlebarOptions = {
+  viewEngine: {
     extName: '.html',
-}));
-   * 
-   */
+    partialsDir: path.resolve('./resources/mail/'),
+    layoutsDir: path.resolve('./resources/mail/auth/'),
+    defaultLayout: 'forgot_password.html',
+  },
+  viewPath: path.resolve('./resources/mail/'),
+  extName: '.html',
+};
+
+transport.use('compile', hbs(handlebarOptions));
 
 
 
