@@ -13,7 +13,7 @@ router.use(authMiddleWare);
 router.get('/', async (req, res) => {
 
     try {
-        const projects = await Project.find().populate('usuario');
+        const projects = await Project.find().populate(['usuario' , 'tasks']);
 
         return res.send({ projects });
 
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 router.get('/:projectId', async (req, res) => {
 
     try {
-        const project = await Project.findById(req.params.projectId).populate('usuario');
+        const project = await Project.findById(req.params.projectId).populate(['usuario' , 'tasks']);
 
         return res.send({ project });
 
@@ -40,15 +40,28 @@ router.get('/:projectId', async (req, res) => {
 //Rota para criar
 router.post('/', async (req, res) => {
 
-    const { titulo } = req.body;
+    const { titulo, descricao, tasks } = req.body;
 
-    try {
-        //Verificar: Não consegue cadastrar mesmo nome utilizando usuário diferente. Talvez tenha que testar o ID do usuário também. 
-        if(await Project.findOne({ titulo }))
-            return res.status(400).send({ error: "Projeto já cadastrado" });
-    
+    try {   
         //Esse "req.userId" vem do middleware de autenticação
-        const project = await Project.create( { ...req.body, usuario: req.userId });
+        const project = await Project.create( { titulo, descricao, usuario: req.userId });
+
+
+        /**
+         * Criação de tarefa junto com criação de projeto
+         * 
+         * */
+        //Utilizado Promise.all() para fazer o "project.save()" esperar a execução de todas as promises
+        await Promise.all(tasks.map(async task => {
+            const projectTask = new Task ({ ...task, project: project._id });
+
+            await projectTask.save();
+
+            project.tasks.push(projectTask);
+        }));
+
+        await project.save();
+
 
         return res.send({ project });
 
@@ -58,9 +71,39 @@ router.post('/', async (req, res) => {
 
 });
 
-//Rota para atualizar - TODO
+//Rota para atualizar
 router.put('/:projectId', async (req, res) => {
-    res.send({ user: req.userId });
+
+    try {
+        const { titulo, descricao, tasks } = req.body;
+
+        // O "new: true" significa que ele irá retornar o valor atualizado, o findByIdAndUpdate() não faz isso por padrão...
+        const project = await Project.findByIdAndUpdate(req.params.projectId, { titulo, descricao }, { new: true });
+
+        //Remove todas as tasks criadas depois que atualizar o project
+        project.tasks = [];
+        await Task.remove({ project: project._id });
+
+
+        await Promise.all(tasks.map(async task => {
+            const projectTask = new Task ({ ...task, project: project._id });
+
+            await projectTask.save();
+
+            project.tasks.push(projectTask);
+        }));
+
+        await project.save();
+
+
+        return res.send({ project });
+
+
+    } catch (error) {
+        console.log(error);
+        return res.status(400).send({ error: "Erro ao atualizar o projeto" });
+    }
+
 });
 
 //Rota para deletar
