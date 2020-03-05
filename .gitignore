@@ -1,0 +1,5 @@
+node_modules
+
+src/config/*
+!src/config/mail.example.json
+!src/config/auth.example.json
