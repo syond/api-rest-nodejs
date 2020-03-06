@@ -1,5 +1,5 @@
 # Sobre
-Esta é minha primeira API Rest desenvolvida utilizando as tecnologias NodeJS e MongoDB. Nela se encontram todas as operações de CRUD, autenticação e recuperação de senha por email utilizando token.
+O sistema permite a criação de projetos e tarefas para cada projeto associadas a um usuário. Esta é minha primeira API Rest desenvolvida utilizando as tecnologias NodeJS e MongoDB. Nela se encontram todas as operações de CRUD, autenticação e recuperação de senha por email utilizando token.
 
 ## Funções
 A API possibilita:
