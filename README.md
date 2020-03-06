@@ -19,7 +19,7 @@ A API possibilita:
 - [x] Configuração do envio de email para reset de senha utilizando `nodemailer`
 
 ## Instalação
-1. 'npm install' para instalar todas as dependências
+1. `npm install` para instalar todas as dependências
 2. Renomeie os arquivos `auth.example.json` e `mail.example.json`
 3. Configure o `auth.example.json` colocando um hash qualquer
 4. Configure o `mail.example.json` com os dados do mailtrap, por exemplo
