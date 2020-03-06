@@ -11,8 +11,8 @@ A API possibilita:
 
 ## Etapas
 - [x] Configuração de ambiente (instalação do NodeJS e configuração inicial)
-- [x] Criação dos Models + Tabelas no MongoDB utilizando 'mongoose'
-- [x] Criação dos Controllers com as rotas utilizando 'router'
+- [x] Criação dos Models + Tabelas no MongoDB utilizando ' mongoose '
+- [x] Criação dos Controllers com as rotas utilizando ' router '
 - [x] Criptografia de senha utilizando 'bcrypt'
 - [x] Criação de token utilizando 'jasonwebtoken'
 - [x] Criação do Middleware de autenticação
